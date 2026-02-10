@@ -59,14 +59,13 @@
         .card-body { padding: 15px; text-align: center; }
         .card-body h3 { color: var(--col-prod-titulo); margin: 10px 0; font-size: 1.1rem; }
         
-        /* CAMBIO SOLICITADO: Justificado y control de texto huérfano */
         .p-description { 
             font-size: 0.8rem; 
             color: var(--col-prod-desc); 
             margin: 10px 0; 
             min-height: 40px; 
             text-align: justify; 
-            text-wrap: pretty; /* Evita letras/palabras huérfanas */
+            text-wrap: pretty; 
         }
         
         .p-price { font-weight: 700; color: var(--col-prod-precio); font-size: 1.1rem; margin: 0; }
@@ -250,8 +249,11 @@
 
     <div class="admin-section" style="background:#e3f2fd; border: 1px solid #2196f3; padding:15px; border-radius:15px;">
         <h3>💾 Base de Datos (JSON)</h3>
+        <button onclick="cargarDesdeRepo()" style="background:#4CAF50; color:white; border:none; padding:12px; border-radius:8px; width:100%; font-weight:bold; cursor:pointer; margin-bottom:10px;">
+            <i class="fas fa-sync"></i> SINCRONIZAR DESDE GITHUB (menu_respaldo.json)
+        </button>
         <button onclick="exportarJSON()" style="background:#2196F3; color:white; border:none; padding:12px; border-radius:8px; width:100%; font-weight:bold; cursor:pointer; margin-bottom:10px;">DESCARGAR ARCHIVO JSON</button>
-        <button onclick="document.getElementById('file-import').click()" style="background:#9c27b0; color:white; border:none; padding:12px; border-radius:8px; width:100%; font-weight:bold; cursor:pointer;">CARGAR ARCHIVO JSON</button>
+        <button onclick="document.getElementById('file-import').click()" style="background:#9c27b0; color:white; border:none; padding:12px; border-radius:8px; width:100%; font-weight:bold; cursor:pointer;">CARGAR ARCHIVO LOCAL (PC/MOVIL)</button>
         <input type="file" id="file-import" style="display:none" onchange="importarJSON(this)">
         
         <button onclick="borrarTodo()" style="background:#dc3545; color:white; border:none; padding:12px; border-radius:8px; width:100%; font-weight:bold; cursor:pointer; margin-top:10px;">
@@ -502,23 +504,38 @@
         if (!file) return;
         const reader = new FileReader();
         reader.onload = function(e) {
-            try {
-                const data = JSON.parse(e.target.result);
-                if (data.cats) localStorage.setItem('cats', JSON.stringify(data.cats));
-                if (data.prods) localStorage.setItem('prods', JSON.stringify(data.prods));
-                if (data.redes) localStorage.setItem('redes', JSON.stringify(data.redes));
-                if (data.conf) localStorage.setItem('conf', JSON.stringify(data.conf));
-                if (data.logo) localStorage.setItem('logo', data.logo);
-                if (data.logoFooter) localStorage.setItem('logoFooter', data.logoFooter);
-                if (data.favicon) localStorage.setItem('favicon', data.favicon);
-                if (data.mapaImg) localStorage.setItem('mapaImg', data.mapaImg);
-                alert("Importado con éxito. La página se recargará.");
-                location.reload();
-            } catch (err) {
-                alert("Error al leer el archivo JSON.");
-            }
+            aplicarData(JSON.parse(e.target.result));
         };
         reader.readAsText(file);
+    }
+
+    /* ÚNICA FUNCIÓN AÑADIDA PARA GITHUB */
+    async function cargarDesdeRepo() {
+        try {
+            const response = await fetch('menu_respaldo.json');
+            if (!response.ok) throw new Error("No se encontró el archivo 'menu_respaldo.json' en tu GitHub.");
+            const data = await response.json();
+            aplicarData(data);
+            alert("¡Sincronizado con éxito desde GitHub!");
+        } catch (err) {
+            alert("Error: " + err.message);
+        }
+    }
+
+    function aplicarData(data) {
+        try {
+            if (data.cats) localStorage.setItem('cats', JSON.stringify(data.cats));
+            if (data.prods) localStorage.setItem('prods', JSON.stringify(data.prods));
+            if (data.redes) localStorage.setItem('redes', JSON.stringify(data.redes));
+            if (data.conf) localStorage.setItem('conf', JSON.stringify(data.conf));
+            if (data.logo) localStorage.setItem('logo', data.logo);
+            if (data.logoFooter) localStorage.setItem('logoFooter', data.logoFooter);
+            if (data.favicon) localStorage.setItem('favicon', data.favicon);
+            if (data.mapaImg) localStorage.setItem('mapaImg', data.mapaImg);
+            location.reload();
+        } catch (err) {
+            alert("Error al aplicar los datos.");
+        }
     }
 
     function toggleAdmin() {
@@ -551,7 +568,6 @@
     }
 
     function verDetalle(p) {
-        /* Se añade text-wrap: pretty también aquí para consistencia visual */
         document.getElementById('modal-detail').innerHTML = `<img src="${p.img}" style="width:100%;max-height:300px;object-fit:contain;border-radius:10px;"><h2 style="color:var(--color-principal)">${p.nom}</h2><p style="text-align:justify; text-wrap: pretty;">${p.desc}</p><h3 style="color:var(--col-prod-precio)">$${p.pre}</h3><button onclick="document.getElementById('product-modal').style.display='none'" style="margin-top:15px;background:var(--color-principal);color:white;border:none;padding:10px 20px;border-radius:10px;cursor:pointer">Cerrar</button>`;
         document.getElementById('product-modal').style.display = 'flex';
     }
