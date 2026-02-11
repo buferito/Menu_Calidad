@@ -590,7 +590,12 @@
 
     function borrarTodo() { if(confirm("PELIGRO: ¿Estás seguro de borrar TODO el menú?")) { localStorage.clear(); location.reload(); } }
 
-    cargarDesdeRepo();
+    // CORRECCIÓN DE PERSISTENCIA: Solo carga desde el repo si no hay configuración local previa.
+    if (localStorage.getItem('conf')) {
+        render();
+    } else {
+        cargarDesdeRepo();
+    }
 </script>
 </body>
 </html>
