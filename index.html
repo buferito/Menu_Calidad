@@ -31,7 +31,6 @@
         .nav-link { color: var(--col-menu-cat); text-decoration: underline; font-size: 0.85rem; cursor: pointer; border: none; background: none; font-weight: 700; padding: 5px 10px; margin: 0; display: inline-block; font-family: inherit; }
         .nav-separator { width: 1px; height: 15px; background-color: #ccc; display: inline-block; }
 
-        /* ESPACIADO CORREGIDO ENTRE CATEGORÍAS */
         .category-section { padding: 10px 20px 10px; max-width: 1200px; margin: 0 auto; scroll-margin-top: 60px; }
         
         header { text-align: center; padding: 10px 10px; position: relative; }
@@ -105,7 +104,6 @@
         .footer-logo { width: 220px; border-radius: 10px; margin-bottom: 20px; display: none; }
         .social-tag-footer { display: flex; gap: 20px; margin-top: 20px; flex-wrap: wrap; justify-content: center; }
 
-        /* ESTILOS PARA EL QR */
         .qr-container { margin: 15px 0; text-align: center; display: none; }
         .qr-img { width: 130px; height: 130px; border: 2px solid var(--color-principal); border-radius: 12px; padding: 5px; background: white; object-fit: contain; }
         .qr-label { font-size: 0.9rem; font-weight: bold; margin-top: 5px; color: #555; display: block; }
@@ -157,9 +155,7 @@
             <img src="" id="logo-footer" class="footer-logo">
             <p id="footer-dir" style="font-weight: 600; margin: 0 0 8px 0; font-size: 1.1rem;"></p>
             <div id="footer-tels" style="font-size: 1rem; color: #666; text-align: center;"></div>
-            
             <div id="footer-qr-area" class="qr-container"></div>
-            
             <div id="footer-socials" class="social-tag-footer"></div>
         </div>
     </div>
@@ -175,7 +171,6 @@
         <label>Nombre del Negocio:</label><input type="text" id="adm-titulo" oninput="actualizarConfig()">
         <label>Título en Pestaña:</label><input type="text" id="adm-tab-title" oninput="actualizarConfig()">
         <label>Texto Copyright:</label><input type="text" id="adm-copy" oninput="actualizarConfig()">
-        
         <label>URL para Código QR (Carta Digital):</label>
         <input type="text" id="adm-url-qr" placeholder="https://tu-sitio.com" oninput="actualizarConfig()">
         
@@ -189,6 +184,7 @@
             <option value="'Caveat', cursive">Escrita a mano (Caveat)</option>
         </select>
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px;">
+            <div><label>Color Fondo:</label><div id="pv-bg" class="color-preview-box"></div><input type="color" id="adm-col-bg" oninput="actualizarConfig()"></div>
             <div><label>Principal:</label><div id="pv-main" class="color-preview-box"></div><input type="color" id="adm-col-main" oninput="actualizarConfig()"></div>
             <div><label>Título Prod:</label><div id="pv-t" class="color-preview-box"></div><input type="color" id="adm-col-t" oninput="actualizarConfig()"></div>
             <div><label>Desc. Prod:</label><div id="pv-d" class="color-preview-box"></div><input type="color" id="adm-col-d" oninput="actualizarConfig()"></div>
@@ -298,7 +294,7 @@
         titulo: "Negocio", tabTitle: "Menú", copy: "© 2026", 
         dir: "", telFijo: "", telCel: "", map: "", urlQR: "", 
         preferIframe: false,
-        colMain: "#d63384", colT: "#333333", colD: "#666666", colP: "#d63384", colCat: "#0056b3",
+        colBg: "#ffffff", colMain: "#d63384", colT: "#333333", colD: "#666666", colP: "#d63384", colCat: "#0056b3",
         pass: "1234",
         fontFamily: "'Poppins', sans-serif"
     };
@@ -308,6 +304,7 @@
     let mapaImg = localStorage.getItem('mapaImg') || "";
 
     function render() {
+        document.documentElement.style.setProperty('--fondo', config.colBg || "#ffffff");
         document.documentElement.style.setProperty('--color-principal', config.colMain);
         document.documentElement.style.setProperty('--col-prod-titulo', config.colT);
         document.documentElement.style.setProperty('--col-prod-desc', config.colD);
@@ -326,6 +323,8 @@
         document.getElementById('adm-prefer-iframe').checked = config.preferIframe;
         document.getElementById('adm-font').value = config.fontFamily || "'Poppins', sans-serif";
 
+        document.getElementById('adm-col-bg').value = config.colBg || "#ffffff";
+        document.getElementById('pv-bg').style.backgroundColor = config.colBg || "#ffffff";
         document.getElementById('adm-col-main').value = config.colMain;
         document.getElementById('pv-main').style.backgroundColor = config.colMain;
         document.getElementById('adm-col-t').value = config.colT;
@@ -355,7 +354,6 @@
             mapContainer.innerHTML = "<i>Mapa no disponible.</i>";
         }
 
-        // RENDERIZAR EL QR EN EL FOOTER
         let qrArea = document.getElementById('footer-qr-area');
         if(config.urlQR && config.urlQR.trim() !== "") {
             qrArea.innerHTML = `
@@ -469,6 +467,7 @@
         config.map = document.getElementById('adm-map').value; 
         config.urlQR = document.getElementById('adm-url-qr').value; 
         config.preferIframe = document.getElementById('adm-prefer-iframe').checked;
+        config.colBg = document.getElementById('adm-col-bg').value; 
         config.colMain = document.getElementById('adm-col-main').value; 
         config.colT = document.getElementById('adm-col-t').value; 
         config.colD = document.getElementById('adm-col-d').value; 
@@ -545,9 +544,7 @@
             if (!response.ok) throw new Error("No se encontró el archivo.");
             const data = await response.json();
             aplicarData(data);
-            console.log("Sincronizado desde GitHub");
         } catch (err) {
-            console.log("Usando base de datos local.");
             render();
         }
     }
@@ -564,7 +561,6 @@
             if (data.mapaImg) { mapaImg = data.mapaImg; localStorage.setItem('mapaImg', data.mapaImg); }
             render();
         } catch (err) {
-            console.error("Error al aplicar datos.");
             render();
         }
     }
