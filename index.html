@@ -31,6 +31,7 @@
         .nav-link { color: var(--col-menu-cat); text-decoration: underline; font-size: 0.85rem; cursor: pointer; border: none; background: none; font-weight: 700; padding: 5px 10px; margin: 0; display: inline-block; font-family: inherit; }
         .nav-separator { width: 1px; height: 15px; background-color: #ccc; display: inline-block; }
 
+        /* ESPACIADO CATEGORÍAS */
         .category-section { padding: 10px 20px 10px; max-width: 1200px; margin: 0 auto; scroll-margin-top: 60px; }
         
         header { text-align: center; padding: 10px 10px; position: relative; }
@@ -46,29 +47,10 @@
         @media (max-width: 500px) { .grid { grid-template-columns: repeat(1, 1fr); } }
 
         .card { background: white; border-radius: 15px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.05); position: relative; cursor: pointer; }
-        
-        .card img { 
-            width: 100%; 
-            height: auto; 
-            aspect-ratio: auto; 
-            object-fit: contain; 
-            background-color: #f8f8f8; 
-            max-height: 500px; 
-            display: block;
-        }
-
+        .card img { width: 100%; height: auto; aspect-ratio: auto; object-fit: contain; background-color: #f8f8f8; max-height: 500px; display: block; }
         .card-body { padding: 15px; text-align: center; }
         .card-body h3 { color: var(--col-prod-titulo); margin: 10px 0; font-size: 1.1rem; }
-        
-        .p-description { 
-            font-size: 0.8rem; 
-            color: var(--col-prod-desc); 
-            margin: 10px 0; 
-            min-height: 40px; 
-            text-align: justify; 
-            text-wrap: pretty; 
-        }
-        
+        .p-description { font-size: 0.8rem; color: var(--col-prod-desc); margin: 10px 0; min-height: 40px; text-align: justify; text-wrap: pretty; }
         .p-price { font-weight: 700; color: var(--col-prod-precio); font-size: 1.1rem; margin: 0; }
 
         .admin-btns { display: flex; justify-content: center; gap: 10px; margin-bottom: 15px; padding: 0 10px; }
@@ -79,7 +61,6 @@
         .control-item { background: rgba(255,255,255,0.9); padding: 5px 12px; border-radius: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); display: flex; align-items: center; gap: 8px; border: 1px solid #eee; }
         
         #fs-wrapper { display: none; }
-        
         .switch { position: relative; display: inline-block; width: 40px; height: 20px; }
         .switch input { opacity: 0; width: 0; height: 0; }
         .slider { position: absolute; cursor: pointer; inset: 0; background-color: #ccc; transition: .4s; border-radius: 34px; }
@@ -91,7 +72,6 @@
         .admin-section { margin-bottom: 30px; padding-bottom: 20px; border-bottom: 2px solid #f0f0f0; }
         label { display: block; font-weight: bold; margin-bottom: 5px; font-size: 0.9rem; color: #555; }
         input, textarea, select { width: 100%; padding: 12px; margin-bottom: 15px; border: 1px solid #ccc; border-radius: 8px; font-family: inherit; }
-        
         .color-preview-box { width: 100%; height: 30px; border-radius: 5px; border: 1px solid #ddd; margin-bottom: 5px; }
         .btn-save { background: #2ecc71; color: white; border: none; padding: 15px; width: 100%; border-radius: 10px; font-weight: bold; cursor: pointer; font-size: 1rem; }
         
@@ -388,29 +368,20 @@
         categorias.forEach(cat => {
             let sect = document.createElement('section'); 
             sect.className = 'category-section'; sect.id = `section-${cat.replace(/\s+/g, '-').toLowerCase()}`;
-            
             let h2 = document.createElement('h2'); h2.className = 'category-title'; h2.innerText = cat;
             sect.appendChild(h2);
-
             let pDeCat = productos.map((p, i) => ({...p, realIdx: i})).filter(p => p.cat === cat);
             let grupos = {};
-            pDeCat.forEach(p => {
-                let sub = p.subcat || "_generales";
-                if(!grupos[sub]) grupos[sub] = [];
-                grupos[sub].push(p);
-            });
-
+            pDeCat.forEach(p => { let sub = p.subcat || "_generales"; if(!grupos[sub]) grupos[sub] = []; grupos[sub].push(p); });
             if(grupos["_generales"]) {
                 let grid = document.createElement('div'); grid.className = 'grid';
                 grupos["_generales"].forEach(p => grid.appendChild(crearCard(p, isAdmin)));
                 sect.appendChild(grid);
             }
-
             for(let sub in grupos) {
                 if(sub === "_generales") continue;
                 let subT = document.createElement('div'); subT.className = 'subcat-title'; subT.innerText = sub;
                 sect.appendChild(subT);
-
                 let gridSub = document.createElement('div'); gridSub.className = 'grid';
                 grupos[sub].forEach(p => gridSub.appendChild(crearCard(p, isAdmin)));
                 sect.appendChild(gridSub);
@@ -451,10 +422,48 @@
         document.getElementById('p-cat').innerHTML = categorias.map(c => `<option value="${c}">${c}</option>`).join(''); 
         document.getElementById('cat-manage-list').innerHTML = categorias.map(c => {
             let subs = [...new Set(productos.filter(p => p.cat === c && p.subcat).map(p => p.subcat))];
-            let subsHTML = subs.map(s => `<div style="margin-left:20px; font-size:0.85em; color:#666;">↳ ${s} <i class="fas fa-pencil-alt" onclick="editarSubcat('${c}', '${s}')"></i> <i class="fas fa-times" onclick="borrarSubcat('${c}', '${s}')"></i></div>`).join('');
-            return `<div class="social-tag">${c} <i class="fas fa-edit" onclick="editarCat('${c}')"></i> <i class="fas fa-times" onclick="borrarCat('${c}')"></i></div>${subsHTML}`;
+            let subsHTML = subs.map(s => `<div style="margin-left:20px; font-size:0.85em; color:#666;">↳ ${s} <i class="fas fa-pencil-alt" style="cursor:pointer" onclick="editarSubcat('${c}', '${s}')"></i> <i class="fas fa-times" style="cursor:pointer" onclick="borrarSubcat('${c}', '${s}')"></i></div>`).join('');
+            return `<div class="social-tag">${c} <span><i class="fas fa-edit" style="cursor:pointer; margin-left:10px;" onclick="editarCat('${c}')"></i> <i class="fas fa-times" style="cursor:pointer; margin-left:5px;" onclick="borrarCat('${c}')"></i></span></div>${subsHTML}`;
         }).join('');
         document.getElementById('social-manage-list').innerHTML = redes.map((r, i) => `<div class="social-tag"><i class="${r.icon}"></i> ${r.name} <i class="fas fa-trash" onclick="borrarRed(${i})"></i></div>`).join(''); 
+    }
+
+    function editarCat(oldN) {
+        let newN = prompt("Nuevo nombre para la categoría:", oldN);
+        if (newN && newN !== oldN) {
+            categorias = categorias.map(c => c === oldN ? newN : c);
+            productos.forEach(p => { if (p.cat === oldN) p.cat = newN; });
+            localStorage.setItem('cats', JSON.stringify(categorias));
+            localStorage.setItem('prods', JSON.stringify(productos));
+            render();
+        }
+    }
+
+    function editarSubcat(c, oldS) {
+        let newS = prompt("Nuevo nombre para la subcategoría:", oldS);
+        if (newS !== null && newS !== oldS) {
+            productos.forEach(p => { if (p.cat === c && p.subcat === oldS) p.subcat = newS; });
+            localStorage.setItem('prods', JSON.stringify(productos));
+            render();
+        }
+    }
+
+    function borrarSubcat(c, s) {
+        if (confirm(`¿Eliminar todos los productos de la subcategoría "${s}"?`)) {
+            productos = productos.filter(p => !(p.cat === c && p.subcat === s));
+            localStorage.setItem('prods', JSON.stringify(productos));
+            render();
+        }
+    }
+
+    function borrarCat(c) {
+        if(confirm("¿Eliminar categoría y todos sus productos?")) {
+            categorias = categorias.filter(x => x !== c);
+            productos = productos.filter(p => p.cat !== c);
+            localStorage.setItem('cats', JSON.stringify(categorias));
+            localStorage.setItem('prods', JSON.stringify(productos));
+            render();
+        }
     }
 
     function actualizarConfig() { 
@@ -482,7 +491,6 @@
     function agregarRed() { let i=document.getElementById('new-social-type').value, n=document.getElementById('new-social-name').value, u=document.getElementById('new-social-url').value; if(n&&u){redes.push({icon:i,name:n,url:u}); localStorage.setItem('redes',JSON.stringify(redes)); render();} }
     function borrarRed(i) { redes.splice(i, 1); localStorage.setItem('redes', JSON.stringify(redes)); render(); }
     function agregarCat() { let v = document.getElementById('new-cat-input').value.trim(); if(v && !categorias.includes(v)) { categorias.push(v); localStorage.setItem('cats', JSON.stringify(categorias)); render(); } document.getElementById('new-cat-input').value = ''; }
-    function borrarCat(c) { if(confirm("¿Eliminar?")) { categorias = categorias.filter(x => x !== c); productos = productos.filter(p => p.cat !== c); localStorage.setItem('cats', JSON.stringify(categorias)); render(); } }
     
     function resetForm() { 
         document.getElementById('p-nom').value=''; 
@@ -531,10 +539,7 @@
         const file = input.files[0];
         if (!file) return;
         const reader = new FileReader();
-        reader.onload = function(e) {
-            aplicarData(JSON.parse(e.target.result));
-            location.reload(); 
-        };
+        reader.onload = function(e) { aplicarData(JSON.parse(e.target.result)); location.reload(); };
         reader.readAsText(file);
     }
 
@@ -544,9 +549,7 @@
             if (!response.ok) throw new Error("No se encontró el archivo.");
             const data = await response.json();
             aplicarData(data);
-        } catch (err) {
-            render();
-        }
+        } catch (err) { render(); }
     }
 
     function aplicarData(data) {
@@ -560,19 +563,13 @@
             if (data.favicon) { favicon = data.favicon; localStorage.setItem('favicon', data.favicon); }
             if (data.mapaImg) { mapaImg = data.mapaImg; localStorage.setItem('mapaImg', data.mapaImg); }
             render();
-        } catch (err) {
-            render();
-        }
+        } catch (err) { render(); }
     }
 
     function toggleAdmin() {
         const isAdmin = document.getElementById('mode-toggle').checked;
         if(isAdmin) document.getElementById('login-modal').style.display = 'flex';
-        else { 
-            document.getElementById('admin-panel').style.display = 'none'; 
-            document.getElementById('fs-wrapper').style.display = 'none'; 
-            render(); 
-        }
+        else { document.getElementById('admin-panel').style.display = 'none'; document.getElementById('fs-wrapper').style.display = 'none'; render(); }
     }
 
     function login() {
@@ -584,27 +581,15 @@
         } else alert("Clave incorrecta");
     }
 
-    function cerrarLogin() {
-        document.getElementById('login-modal').style.display = 'none';
-        document.getElementById('mode-toggle').checked = false;
-    }
-
-    function toggleFS() {
-        if (!document.fullscreenElement) document.documentElement.requestFullscreen();
-        else if (document.exitFullscreen) document.exitFullscreen();
-    }
+    function cerrarLogin() { document.getElementById('login-modal').style.display = 'none'; document.getElementById('mode-toggle').checked = false; }
+    function toggleFS() { if (!document.fullscreenElement) document.documentElement.requestFullscreen(); else if (document.exitFullscreen) document.exitFullscreen(); }
 
     function verDetalle(p) {
         document.getElementById('modal-detail').innerHTML = `<img src="${p.img}" style="width:100%;max-height:300px;object-fit:contain;border-radius:10px;"><h2 style="color:var(--color-principal)">${p.nom}</h2><p style="text-align:justify; text-wrap: pretty;">${p.desc}</p><h3 style="color:var(--col-prod-precio)">$${p.pre}</h3><button onclick="document.getElementById('product-modal').style.display='none'" style="margin-top:15px;background:var(--color-principal);color:white;border:none;padding:10px 20px;border-radius:10px;cursor:pointer">Cerrar</button>`;
         document.getElementById('product-modal').style.display = 'flex';
     }
 
-    function borrarTodo() {
-        if(confirm("PELIGRO: ¿Estás seguro de borrar TODO el menú y las fotos?")) {
-            localStorage.clear();
-            location.reload();
-        }
-    }
+    function borrarTodo() { if(confirm("PELIGRO: ¿Estás seguro de borrar TODO el menú?")) { localStorage.clear(); location.reload(); } }
 
     cargarDesdeRepo();
 </script>
