@@ -31,7 +31,6 @@
         .nav-link { color: var(--col-menu-cat); text-decoration: underline; font-size: 0.85rem; cursor: pointer; border: none; background: none; font-weight: 700; padding: 5px 10px; margin: 0; display: inline-block; font-family: inherit; }
         .nav-separator { width: 1px; height: 15px; background-color: #ccc; display: inline-block; }
 
-        /* ESPACIADO CATEGORÍAS */
         .category-section { padding: 10px 20px 10px; max-width: 1200px; margin: 0 auto; scroll-margin-top: 60px; }
         
         header { text-align: center; padding: 10px 10px; position: relative; }
@@ -422,8 +421,8 @@
         document.getElementById('p-cat').innerHTML = categorias.map(c => `<option value="${c}">${c}</option>`).join(''); 
         document.getElementById('cat-manage-list').innerHTML = categorias.map(c => {
             let subs = [...new Set(productos.filter(p => p.cat === c && p.subcat).map(p => p.subcat))];
-            let subsHTML = subs.map(s => `<div style="margin-left:20px; font-size:0.85em; color:#666;">↳ ${s} <i class="fas fa-pencil-alt" style="cursor:pointer" onclick="editarSubcat('${c}', '${s}')"></i> <i class="fas fa-times" style="cursor:pointer" onclick="borrarSubcat('${c}', '${s}')"></i></div>`).join('');
-            return `<div class="social-tag">${c} <span><i class="fas fa-edit" style="cursor:pointer; margin-left:10px;" onclick="editarCat('${c}')"></i> <i class="fas fa-times" style="cursor:pointer; margin-left:5px;" onclick="borrarCat('${c}')"></i></span></div>${subsHTML}`;
+            let subsHTML = subs.map(s => `<div style="margin-left:20px; font-size:0.85em; color:#666;">↳ ${s} <i class="fas fa-pencil-alt" style="cursor:pointer" onclick="editarSubcat('${c}', '${s}')"></i> <i class="fas fa-times" style="cursor:pointer; color:red;" onclick="borrarSubcat('${c}', '${s}')"></i></div>`).join('');
+            return `<div class="social-tag">${c} <span><i class="fas fa-edit" style="cursor:pointer; margin-left:10px;" onclick="editarCat('${c}')"></i> <i class="fas fa-times" style="cursor:pointer; margin-left:5px; color:red;" onclick="borrarCat('${c}')"></i></span></div>${subsHTML}`;
         }).join('');
         document.getElementById('social-manage-list').innerHTML = redes.map((r, i) => `<div class="social-tag"><i class="${r.icon}"></i> ${r.name} <i class="fas fa-trash" onclick="borrarRed(${i})"></i></div>`).join(''); 
     }
